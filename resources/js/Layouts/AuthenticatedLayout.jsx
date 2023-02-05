@@ -94,7 +94,12 @@ export default function Authenticated({ auth, children }) {
                                                                         ? ArrowSmallLeftIcon
                                                                         : ArrowSmallRightIcon
                                                             }
-                                                      />
+                                                      >
+                                                            {sidebarOpen
+                                                                  ? 'Collapse'
+                                                                  : 'Expand'}{' '}
+                                                            Sidebar
+                                                      </Sidebar.Item>
                                                 </Sidebar.ItemGroup>
                                           </Sidebar.Items>
                                     </React.Fragment>
