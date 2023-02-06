@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class PermissionController extends Controller
 {
@@ -14,7 +15,10 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Settings/Permission/index', [
+            'permissions' => \Spatie\Permission\Models\Permission::orderBy('created_at', 'DESC')
+                ->paginate(5)
+        ]);
     }
 
     /**
@@ -35,7 +39,13 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|unique:permissions,name',
+        ]);
+
+        \Spatie\Permission\Models\Permission::create(['name' => $request->name]);
+
+        return redirect()->route('settings.permissions.index')->with('success', 'Permission created successfully.');
     }
 
     /**
@@ -69,7 +79,15 @@ class PermissionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'name' => 'required|unique:permissions,name',
+        ]);
+
+        $permission = \Spatie\Permission\Models\Permission::find($id);
+        $permission->name = $request->name;
+        $permission->save();
+
+        return redirect()->route('settings.permissions.index')->with('success', 'Permission updated successfully.');
     }
 
     /**
@@ -80,6 +98,9 @@ class PermissionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $permission = \Spatie\Permission\Models\Permission::find($id);
+        $permission->delete();
+
+        return redirect()->route('settings.permissions.index')->with('success', 'Permission deleted successfully.');
     }
 }
