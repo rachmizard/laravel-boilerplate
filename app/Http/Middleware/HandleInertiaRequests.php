@@ -39,6 +39,7 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [
                     'location' => $request->url(),
+                    'queryParams' => $request->query(),
                 ]);
             },
             'app_name' => config('app.name'),

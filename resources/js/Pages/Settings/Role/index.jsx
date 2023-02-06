@@ -1,5 +1,5 @@
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { createColumnHelper } from '@tanstack/react-table';
 import { Button } from 'flowbite-react';
 import { useState } from 'react';
@@ -14,6 +14,8 @@ import DeleteRoleModal from './DeleteRoleModal';
 const columnHelper = createColumnHelper();
 
 export default function SettingRoleIndexPage(props) {
+      const { queryParams } = props.ziggy;
+
       const [openCreateModal, setOpenCreateModal] = useState(false);
       const [openEditModal, setOpenEditModal] = useState(false);
       const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -29,12 +31,13 @@ export default function SettingRoleIndexPage(props) {
                   cell: info => info.getValue(),
             }),
             columnHelper.accessor(row => row.guard_name, {
-                  id: 'guardName',
+                  id: 'guard_name',
                   cell: info => info.getValue().toUpperCase(),
                   header: () => <span>Guard Name</span>,
             }),
             columnHelper.accessor(row => row.permissions, {
                   id: 'permissions',
+                  enableSorting: false,
                   cell: info => (
                         <p className="truncate">
                               {info
@@ -47,6 +50,7 @@ export default function SettingRoleIndexPage(props) {
             }),
             columnHelper.accessor(row => row.id, {
                   id: 'action',
+                  enableSorting: false,
                   cell: ({ row }) => (
                         <div className="inline-flex items-center space-x-4">
                               <Button
@@ -85,6 +89,17 @@ export default function SettingRoleIndexPage(props) {
             }),
       ];
 
+      function onSortChange(sorts) {
+            router.get(
+                  window.route('settings.roles.index'),
+                  { ...queryParams, sorts },
+                  {
+                        preserveScroll: true,
+                        preserveState: true,
+                  }
+            );
+      }
+
       return (
             <AuthenticatedLayout
                   auth={props.auth}
@@ -101,6 +116,7 @@ export default function SettingRoleIndexPage(props) {
                         <Datatable
                               columns={columns}
                               data={props.roles?.data ?? []}
+                              onSortChange={onSortChange}
                               headerActions={
                                     <div className="flex items-center justify-end space-x-4">
                                           <Button

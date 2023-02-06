@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,17 +14,26 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $roles = \Spatie\Permission\Models\Role::where('name', '!=', 'super-admin')
+            ->with(['permissions' => function ($query) {
+                $query->select('name');
+                $query->orderBy('created_at', 'DESC');
+            }]);
+
+
+        if ($request->has('sorts')) {
+            $sorts = array_merge(...$request->sorts);
+            $roles = $roles->orderBy($sorts['id'], $sorts['desc'] === "true" ? 'DESC' : 'ASC');
+        }
+
+
+        $roles = $roles->paginate(5);
+
         return Inertia::render('Settings/Role/index', [
             'permissions' => \Spatie\Permission\Models\Permission::orderBy('created_at', 'DESC')->get()->pluck('name'),
-            'roles' => \Spatie\Permission\Models\Role::where('name', '!=', 'super-admin')
-                ->with(['permissions' => function ($query) {
-                    $query->select('name');
-                    $query->orderBy('created_at', 'DESC');
-                }])
-                ->orderBy('created_at', 'DESC')
-                ->paginate(5)
+            'roles' => $roles
         ]);
     }
 

@@ -1,7 +1,10 @@
-import { Link } from '@inertiajs/react';
+import { useState } from 'react';
+import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
+import { Link, usePage } from '@inertiajs/react';
 import {
       flexRender,
       getCoreRowModel,
+      getSortedRowModel,
       useReactTable,
 } from '@tanstack/react-table';
 import { Button, Table } from 'flowbite-react';
@@ -11,11 +14,28 @@ export default function Datatable({
       footerActions,
       columns = [],
       data = [],
+      onSortChange,
 }) {
+      const { ziggy } = usePage().props;
+      const { sorts } = ziggy.queryParams || {};
+
+      const [sorting, setSorting] = useState(sorts || []);
+
+      const onSortingChange = callback => {
+            setSorting(callback);
+            onSortChange && onSortChange(callback());
+      };
+
       const table = useReactTable({
             data,
             columns,
+            state: {
+                  sorting,
+            },
+            manualSorting: true,
+            onSortingChange,
             getCoreRowModel: getCoreRowModel(),
+            getSortedRowModel: getSortedRowModel(),
       });
 
       return (
@@ -25,29 +45,47 @@ export default function Datatable({
                   <div className="flex flex-col overflow-x-auto max-w-full">
                         <Table hoverable={true}>
                               <Table.Head>
-                                    {table
-                                          .getHeaderGroups()
-                                          .map(headerGroup =>
-                                                headerGroup.headers.map(
-                                                      header => (
-                                                            <Table.HeadCell
-                                                                  key={
-                                                                        header.id
-                                                                  }
+                                    {table.getHeaderGroups().map(headerGroup =>
+                                          headerGroup.headers.map(header => (
+                                                <Table.HeadCell
+                                                      colSpan={header.colSpan}
+                                                      key={header.id}
+                                                >
+                                                      {header.isPlaceholder ? null : (
+                                                            <div
+                                                                  className={`inline-flex items-center gap-1 ${
+                                                                        header.column.getCanSort()
+                                                                              ? 'cursor-pointer select-none'
+                                                                              : ''
+                                                                  }`}
+                                                                  onClick={header.column.getToggleSortingHandler()}
                                                             >
-                                                                  {header.isPlaceholder
-                                                                        ? null
-                                                                        : flexRender(
-                                                                                header
-                                                                                      .column
-                                                                                      .columnDef
-                                                                                      .header,
-                                                                                header.getContext()
-                                                                          )}
-                                                            </Table.HeadCell>
-                                                      )
-                                                )
-                                          )}
+                                                                  {flexRender(
+                                                                        header
+                                                                              .column
+                                                                              .columnDef
+                                                                              .header,
+                                                                        header.getContext()
+                                                                  )}
+
+                                                                  {
+                                                                        {
+                                                                              asc: (
+                                                                                    <ArrowUpIcon className="w-4 h-4" />
+                                                                              ),
+                                                                              desc: (
+                                                                                    <ArrowDownIcon className="w-4 h-4" />
+                                                                              ),
+                                                                        }[
+                                                                              header.column.getIsSorted() ??
+                                                                                    null
+                                                                        ]
+                                                                  }
+                                                            </div>
+                                                      )}
+                                                </Table.HeadCell>
+                                          ))
+                                    )}
                               </Table.Head>
                               <Table.Body className="divide-y">
                                     {table.getRowModel().rows.map(row => (

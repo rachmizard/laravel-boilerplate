@@ -13,11 +13,18 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+
+        $permissions = \Spatie\Permission\Models\Permission::query();
+
+        if ($request->has('sorts')) {
+            $sorts = array_merge(...$request->sorts);
+            $permissions->orderBy($sorts['id'], $sorts['desc'] === "true" ? 'DESC' : 'ASC');
+        }
+
         return Inertia::render('Settings/Permission/index', [
-            'permissions' => \Spatie\Permission\Models\Permission::orderBy('created_at', 'DESC')
-                ->paginate(5)
+            'permissions' => $permissions->paginate(5)
         ]);
     }
 
