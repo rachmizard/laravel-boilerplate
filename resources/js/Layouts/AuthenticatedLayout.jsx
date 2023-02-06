@@ -1,116 +1,36 @@
 /* eslint-disable no-undef */
-import React, { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
-import {
-      ArrowRightOnRectangleIcon,
-      ArrowSmallLeftIcon,
-      ArrowSmallRightIcon,
-      ChartPieIcon,
-      InboxIcon,
-      ShoppingBagIcon,
-      UserIcon,
-} from '@heroicons/react/24/outline';
-import { Avatar, Dropdown, Navbar, Sidebar } from 'flowbite-react';
+import Sidebar from '@/Components/Sidebar';
+import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Avatar, Dropdown, Navbar } from 'flowbite-react';
+
+const getSeperatedUrlPath = url => {
+      const urlPath = url.split('/');
+      urlPath.shift();
+
+      // remove query params ? from url
+      urlPath[urlPath.length - 1] = urlPath[urlPath.length - 1].split('?')[0];
+
+      return urlPath
+            .map(path => {
+                  return path[0].toUpperCase() + path.slice(1);
+            })
+            .join(' > ');
+};
 
 export default function Authenticated({ auth, children }) {
-      const [sidebarOpen, setSidebarOpen] = useState(true);
+      const { url } = usePage();
 
       return (
             <div className="min-h-screen bg-gray-100">
                   <div className="flex">
-                        <div
-                              className={`flex-initial ${
-                                    sidebarOpen ? 'w-64' : 'w-fit'
-                              } min-h-screen`}
-                        >
-                              <Sidebar
-                                    className="min-h-screen h-full"
-                                    aria-label="Sidebar with multi-level dropdown example"
-                                    collapsed={!sidebarOpen}
-                              >
-                                    <React.Fragment>
-                                          <Sidebar.Logo
-                                                href="#"
-                                                img="https://flowbite.com/docs/images/logo.svg"
-                                                imgAlt="Flowbite logo"
-                                          >
-                                                Flowbite
-                                          </Sidebar.Logo>
-                                          <Sidebar.Items>
-                                                <Sidebar.ItemGroup>
-                                                      <Sidebar.Item
-                                                            href="#"
-                                                            onClick={() => {
-                                                                  router.visit(
-                                                                        route(
-                                                                              'dashboard'
-                                                                        )
-                                                                  );
-                                                            }}
-                                                            icon={ChartPieIcon}
-                                                      >
-                                                            Dashboard
-                                                      </Sidebar.Item>
-                                                      <Sidebar.Collapse
-                                                            icon={
-                                                                  ShoppingBagIcon
-                                                            }
-                                                            label="E-commerce"
-                                                      >
-                                                            <Sidebar.Item href="#">
-                                                                  Products
-                                                            </Sidebar.Item>
-                                                      </Sidebar.Collapse>
-                                                      <Sidebar.Item
-                                                            href="#"
-                                                            icon={InboxIcon}
-                                                      >
-                                                            Inbox
-                                                      </Sidebar.Item>
-                                                      <Sidebar.Item
-                                                            href="#"
-                                                            icon={UserIcon}
-                                                      >
-                                                            Users
-                                                      </Sidebar.Item>
-                                                      <Sidebar.Item
-                                                            href="#"
-                                                            icon={
-                                                                  ShoppingBagIcon
-                                                            }
-                                                      >
-                                                            Products
-                                                      </Sidebar.Item>
-                                                      <Sidebar.Item
-                                                            href="#"
-                                                            onClick={() =>
-                                                                  setSidebarOpen(
-                                                                        prev =>
-                                                                              !prev
-                                                                  )
-                                                            }
-                                                            icon={
-                                                                  sidebarOpen
-                                                                        ? ArrowSmallLeftIcon
-                                                                        : ArrowSmallRightIcon
-                                                            }
-                                                      >
-                                                            {sidebarOpen
-                                                                  ? 'Collapse'
-                                                                  : 'Expand'}{' '}
-                                                            Sidebar
-                                                      </Sidebar.Item>
-                                                </Sidebar.ItemGroup>
-                                          </Sidebar.Items>
-                                    </React.Fragment>
-                              </Sidebar>
-                        </div>
+                        <Sidebar />
 
                         <div className="flex flex-col flex-auto">
                               <Navbar rounded>
                                     <Navbar.Brand href="/">
                                           <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-                                                Flowbite
+                                                {getSeperatedUrlPath(url)}
                                           </span>
                                     </Navbar.Brand>
                                     <div className="flex md:order-2">
@@ -167,13 +87,11 @@ export default function Authenticated({ auth, children }) {
                                                                   )
                                                             );
                                                       }}
+                                                      icon={
+                                                            ArrowRightOnRectangleIcon
+                                                      }
                                                 >
-                                                      <div className="inline-flex gap-2">
-                                                            <ArrowRightOnRectangleIcon />
-                                                            <span>
-                                                                  Sign out
-                                                            </span>
-                                                      </div>
+                                                      <span>Sign out</span>
                                                 </Dropdown.Item>
                                           </Dropdown>
                                     </div>
