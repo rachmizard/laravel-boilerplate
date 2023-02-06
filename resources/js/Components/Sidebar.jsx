@@ -11,13 +11,66 @@ import {
       UsersIcon,
 } from '@heroicons/react/24/outline';
 
+const itemGroups = [
+      {
+            active: uri => uri.startsWith('/dashboard'),
+            label: 'Dashboard',
+            href: window.route('dashboard'),
+            icon: ChartPieIcon,
+            hasChildren: false,
+            can: ['view-dashboard'],
+            children: [],
+      },
+      {
+            active: uri => uri.startsWith('/settings'),
+            label: 'Settings',
+            href: '#',
+            icon: Cog6ToothIcon,
+            hasChildren: true,
+            can: ['view-settings'],
+            children: [
+                  {
+                        active: uri => uri.startsWith('/settings/roles'),
+                        label: 'Roles',
+                        href: window.route('settings.roles.index'),
+                        icon: UserIcon,
+                        can: ['view-settings-roles'],
+                  },
+                  {
+                        active: uri => uri.startsWith('/settings/permissions'),
+                        label: 'Permissions',
+                        href: window.route('settings.permissions.index'),
+                        icon: ShieldCheckIcon,
+                        can: ['view-settings-permissions'],
+                  },
+                  {
+                        active: uri => uri.startsWith('/settings/users'),
+                        label: 'Manage Users',
+                        href: window.route('settings.users.index'),
+                        icon: UsersIcon,
+                        can: ['view-settings-users'],
+                  },
+            ],
+      },
+];
+
+function checkPermissions(userPermissions = [], permissions = []) {
+      if (permissions.length === 0) return true;
+
+      return permissions.some(permission =>
+            userPermissions.includes(permission)
+      );
+}
+
 export default function Sidebar() {
       const { url, props } = usePage();
       const { app_name, auth } = props;
 
-      const [sidebarOpen, setSidebarOpen] = useState(true);
+      const userRoles = auth.roles;
+      const userPermissions = auth.permissions;
+      const isSuperAdmin = userRoles.includes('super-admin');
 
-      const elligibleAccessSettings = auth.roles.includes('super-admin');
+      const [sidebarOpen, setSidebarOpen] = useState(true);
 
       return (
             <div
@@ -40,91 +93,83 @@ export default function Sidebar() {
                               </FlowbiteSidebar.Logo>
                               <FlowbiteSidebar.Items>
                                     <FlowbiteSidebar.ItemGroup>
-                                          <FlowbiteSidebar.Item
-                                                href="#"
-                                                onClick={() => {
-                                                      router.visit(
-                                                            window.route(
-                                                                  'dashboard'
+                                          {itemGroups.map(
+                                                (itemGroup, index) => {
+                                                      const hasChildren =
+                                                            itemGroup.hasChildren ||
+                                                            itemGroup.children
+                                                                  .length > 0;
+
+                                                      if (
+                                                            !isSuperAdmin &&
+                                                            !checkPermissions(
+                                                                  userPermissions,
+                                                                  itemGroup.can
                                                             )
+                                                      ) {
+                                                            return null;
+                                                      }
+
+                                                      return hasChildren ? (
+                                                            <FlowbiteSidebar.Collapse
+                                                                  icon={
+                                                                        itemGroup.icon
+                                                                  }
+                                                                  label={
+                                                                        itemGroup.label
+                                                                  }
+                                                                  open={itemGroup.active(
+                                                                        url
+                                                                  )}
+                                                            >
+                                                                  {itemGroup.children.map(
+                                                                        child => (
+                                                                              <FlowbiteSidebar.Item
+                                                                                    key={`${child.label}-${index}`}
+                                                                                    active={child.active(
+                                                                                          url
+                                                                                    )}
+                                                                                    href="#"
+                                                                                    onClick={() => {
+                                                                                          router.visit(
+                                                                                                child.href
+                                                                                          );
+                                                                                    }}
+                                                                                    icon={
+                                                                                          child.icon
+                                                                                    }
+                                                                              >
+                                                                                    {
+                                                                                          child.label
+                                                                                    }
+                                                                              </FlowbiteSidebar.Item>
+                                                                        )
+                                                                  )}
+                                                            </FlowbiteSidebar.Collapse>
+                                                      ) : (
+                                                            <FlowbiteSidebar.Item
+                                                                  href="#"
+                                                                  active={itemGroup.active(
+                                                                        url
+                                                                  )}
+                                                                  onClick={() => {
+                                                                        router.visit(
+                                                                              itemGroup.href
+                                                                        );
+                                                                  }}
+                                                                  icon={
+                                                                        itemGroup.icon
+                                                                  }
+                                                            >
+                                                                  {
+                                                                        itemGroup.label
+                                                                  }
+                                                            </FlowbiteSidebar.Item>
                                                       );
-                                                }}
-                                                icon={ChartPieIcon}
-                                          >
-                                                Dashboard
-                                          </FlowbiteSidebar.Item>
+                                                }
+                                          )}
                                     </FlowbiteSidebar.ItemGroup>
-                                    {elligibleAccessSettings && (
-                                          <FlowbiteSidebar.ItemGroup>
-                                                <FlowbiteSidebar.Collapse
-                                                      icon={Cog6ToothIcon}
-                                                      label="Settings"
-                                                      open={url.startsWith(
-                                                            '/settings'
-                                                      )}
-                                                >
-                                                      <FlowbiteSidebar.Item
-                                                            icon={UserIcon}
-                                                            href="#"
-                                                            active={url.startsWith(
-                                                                  '/settings/roles'
-                                                            )}
-                                                            onClick={() =>
-                                                                  router.visit(
-                                                                        window.route(
-                                                                              'settings.roles.index'
-                                                                        ),
-                                                                        {
-                                                                              preserveState: true,
-                                                                        }
-                                                                  )
-                                                            }
-                                                      >
-                                                            Roles
-                                                      </FlowbiteSidebar.Item>
-                                                      <FlowbiteSidebar.Item
-                                                            icon={
-                                                                  ShieldCheckIcon
-                                                            }
-                                                            href="#"
-                                                            active={url.startsWith(
-                                                                  '/settings/permissions'
-                                                            )}
-                                                            onClick={() =>
-                                                                  router.visit(
-                                                                        window.route(
-                                                                              'settings.permissions.index'
-                                                                        ),
-                                                                        {
-                                                                              preserveState: true,
-                                                                        }
-                                                                  )
-                                                            }
-                                                      >
-                                                            Permissions
-                                                      </FlowbiteSidebar.Item>
-                                                      <FlowbiteSidebar.Item
-                                                            icon={UsersIcon}
-                                                            href="#"
-                                                            active={url.startsWith(
-                                                                  '/settings/users'
-                                                            )}
-                                                            onClick={() =>
-                                                                  router.visit(
-                                                                        window.route(
-                                                                              'settings.users.index'
-                                                                        ),
-                                                                        {
-                                                                              preserveState: true,
-                                                                        }
-                                                                  )
-                                                            }
-                                                      >
-                                                            Manage Users
-                                                      </FlowbiteSidebar.Item>
-                                                </FlowbiteSidebar.Collapse>
-                                          </FlowbiteSidebar.ItemGroup>
-                                    )}
+
                                     <FlowbiteSidebar.ItemGroup>
                                           <FlowbiteSidebar.Item
                                                 href="#"
