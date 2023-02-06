@@ -33,6 +33,18 @@ export default function SettingRoleIndexPage(props) {
                   cell: info => info.getValue().toUpperCase(),
                   header: () => <span>Guard Name</span>,
             }),
+            columnHelper.accessor(row => row.permissions, {
+                  id: 'permissions',
+                  cell: info => (
+                        <p className="truncate">
+                              {info
+                                    .getValue()
+                                    .map(permission => permission.name)
+                                    .join(', ')}
+                        </p>
+                  ),
+                  header: () => <span>Permissions</span>,
+            }),
             columnHelper.accessor(row => row.id, {
                   id: 'action',
                   cell: ({ row }) => (
@@ -43,7 +55,15 @@ export default function SettingRoleIndexPage(props) {
                                     pill
                                     onClick={() => {
                                           setOpenEditModal(true);
-                                          setRoleData(row.original);
+                                          setRoleData({
+                                                ...row.original,
+                                                id: row.original.id,
+                                                permissions:
+                                                      row.original.permissions.map(
+                                                            permission =>
+                                                                  permission.name
+                                                      ),
+                                          });
                                     }}
                               >
                                     Edit

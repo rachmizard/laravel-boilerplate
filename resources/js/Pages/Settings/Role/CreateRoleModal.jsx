@@ -1,12 +1,21 @@
 import { useForm } from '@inertiajs/react';
-import { Button, Modal } from 'flowbite-react';
+import { Button, Modal, Spinner } from 'flowbite-react';
+
 import RoleFields from './RoleFields';
 
 export default function CreateRoleModal({ show, onClose }) {
-      const { data, setData, post, reset, errors, recentlySuccessful } =
-            useForm({
-                  name: '',
-            });
+      const {
+            data,
+            setData,
+            post,
+            reset,
+            errors,
+            recentlySuccessful,
+            processing,
+      } = useForm({
+            name: '',
+            permissions: [],
+      });
 
       const onSubmit = e => {
             e.preventDefault();
@@ -31,7 +40,14 @@ export default function CreateRoleModal({ show, onClose }) {
                               />
                         </Modal.Body>
                         <Modal.Footer>
-                              <Button type="submit">Create</Button>
+                              <Button type="submit" disabled={processing}>
+                                    {processing && (
+                                          <div className="mr-2">
+                                                <Spinner light size="sm" />
+                                          </div>
+                                    )}
+                                    Create
+                              </Button>
                               <Button color="gray" onClick={onClose}>
                                     Cancel
                               </Button>

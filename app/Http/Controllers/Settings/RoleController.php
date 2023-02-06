@@ -16,7 +16,12 @@ class RoleController extends Controller
     public function index()
     {
         return Inertia::render('Settings/Role/index', [
+            'permissions' => \Spatie\Permission\Models\Permission::orderBy('created_at', 'DESC')->get()->pluck('name'),
             'roles' => \Spatie\Permission\Models\Role::where('name', '!=', 'super-admin')
+                ->with(['permissions' => function ($query) {
+                    $query->select('name');
+                    $query->orderBy('created_at', 'DESC');
+                }])
                 ->orderBy('created_at', 'DESC')
                 ->paginate(5)
         ]);
@@ -42,9 +47,14 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:roles,name',
+            'permissions' => 'array|exists:permissions,name',
         ]);
 
-        \Spatie\Permission\Models\Role::create(['name' => $request->name]);
+        $role = \Spatie\Permission\Models\Role::create(['name' => $request->name]);
+
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
 
         return redirect()->route('settings.roles.index')->with('success', 'Role created successfully.');
     }
@@ -81,12 +91,17 @@ class RoleController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|unique:roles,name',
+            'name' => 'required',
+            'permissions' => 'array|exists:permissions,name'
         ]);
 
         $role = \Spatie\Permission\Models\Role::find($id);
         $role->name = $request->name;
         $role->save();
+
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
 
         return redirect()->route('settings.roles.index')->with('success', 'Role updated successfully.');
     }

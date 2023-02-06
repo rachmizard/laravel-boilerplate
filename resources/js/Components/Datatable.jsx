@@ -22,7 +22,7 @@ export default function Datatable({
             <div className="flex flex-col space-y-4">
                   {headerActions && headerActions}
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col overflow-x-auto max-w-full">
                         <Table hoverable={true}>
                               <Table.Head>
                                     {table
