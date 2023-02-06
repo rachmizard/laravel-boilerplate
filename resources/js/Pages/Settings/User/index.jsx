@@ -1,24 +1,29 @@
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { Head, router } from '@inertiajs/react';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Button } from 'flowbite-react';
+import { Alert, Button } from 'flowbite-react';
 import { useState } from 'react';
 
 import Datatable from '@/Components/Datatable';
-import CreatePermissionModal from './CreatePermissionModal';
-import EditPermissionModal from './EditPermissionModal';
-import DeletePermissionModal from './DeletePermissionModal';
 
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import DeleteUserModal from './DeleteUserModal';
+import CreateUserModal from './CreateUserModal';
+import EditUserModal from './EditUserModal';
 
 const columnHelper = createColumnHelper();
 
-export default function SettingPermissionIndexPage(props) {
+export default function SettingUserIndexPage(props) {
       const { queryParams } = props.ziggy;
+      const { flash } = props;
+
       const [openCreateModal, setOpenCreateModal] = useState(false);
       const [openEditModal, setOpenEditModal] = useState(false);
       const [openDeleteModal, setOpenDeleteModal] = useState(false);
-      const [permissionData, setPermissionData] = useState(null);
+
+      const [userData, setUserData] = useState(null);
+
+      const [id, setId] = useState(null);
 
       const columns = [
             columnHelper.accessor('id', {
@@ -26,13 +31,12 @@ export default function SettingPermissionIndexPage(props) {
                   cell: info => info.getValue(),
             }),
             columnHelper.accessor('name', {
-                  header: () => <span>Permission Name</span>,
+                  header: () => <span>Name</span>,
                   cell: info => info.getValue(),
             }),
-            columnHelper.accessor(row => row.guard_name, {
-                  id: 'guard_name',
-                  cell: info => info.getValue().toUpperCase(),
-                  header: () => <span>Guard Name</span>,
+            columnHelper.accessor('email', {
+                  cell: info => info.getValue(),
+                  header: () => <span>Email</span>,
             }),
             columnHelper.accessor(row => row.id, {
                   id: 'action',
@@ -44,8 +48,8 @@ export default function SettingPermissionIndexPage(props) {
                                     size="xs"
                                     pill
                                     onClick={() => {
+                                          setUserData(row.original);
                                           setOpenEditModal(true);
-                                          setPermissionData(row.original);
                                     }}
                               >
                                     Edit
@@ -56,7 +60,7 @@ export default function SettingPermissionIndexPage(props) {
                                     pill
                                     onClick={() => {
                                           setOpenDeleteModal(true);
-                                          setPermissionData(row.original);
+                                          setId(row.original.id);
                                     }}
                               >
                                     Delete
@@ -69,7 +73,7 @@ export default function SettingPermissionIndexPage(props) {
 
       function onSortChange(sorts) {
             router.get(
-                  window.route('settings.permissions.index'),
+                  window.route('settings.users.index'),
                   { ...queryParams, sorts },
                   {
                         preserveScroll: true,
@@ -84,16 +88,24 @@ export default function SettingPermissionIndexPage(props) {
                   errors={props.errors}
                   header={
                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                              Settings - Permissions
+                              Settings - Users
                         </h2>
                   }
             >
-                  <Head title="Settings - Permissions" />
+                  <Head title="Settings - Users" />
 
-                  <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                  <div className="max-w-7xl mx-auto space-y-3 sm:px-6 lg:px-8">
+                        {flash.success && (
+                              <Alert color="success">{flash.success}</Alert>
+                        )}
+
+                        {flash.error && (
+                              <Alert color="failure">{flash.error}</Alert>
+                        )}
+
                         <Datatable
                               columns={columns}
-                              data={props.permissions?.data ?? []}
+                              data={props.users?.data ?? []}
                               onSortChange={onSortChange}
                         >
                               <Datatable.HeaderAction>
@@ -112,26 +124,26 @@ export default function SettingPermissionIndexPage(props) {
                                     </div>
                               </Datatable.HeaderAction>
                               <Datatable.Pagination
-                                    links={props.permissions?.links ?? []}
+                                    links={props.users?.links ?? []}
                               />
                         </Datatable>
                   </div>
 
-                  <CreatePermissionModal
-                        show={openCreateModal}
+                  <CreateUserModal
                         onClose={() => setOpenCreateModal(false)}
+                        show={openCreateModal}
                   />
 
-                  {openEditModal && permissionData && (
-                        <EditPermissionModal
-                              defaultValues={permissionData}
+                  {openEditModal && (
+                        <EditUserModal
+                              defaultValues={userData}
                               onClose={() => setOpenEditModal(false)}
                         />
                   )}
 
-                  <DeletePermissionModal
-                        show={openDeleteModal && permissionData}
-                        id={permissionData?.id}
+                  <DeleteUserModal
+                        show={openDeleteModal && id}
+                        id={id}
                         onClose={() => setOpenDeleteModal(false)}
                   />
             </AuthenticatedLayout>

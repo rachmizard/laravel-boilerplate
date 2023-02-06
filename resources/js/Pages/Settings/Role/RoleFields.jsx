@@ -33,7 +33,7 @@ export default function RoleFields({
                                     type="text"
                                     name="name"
                                     placeholder="Admin, User, etc."
-                                    value={data.name}
+                                    value={data?.name ?? ''}
                                     color={errors.name ? 'failure' : ''}
                                     helperText={errors.name}
                                     onChange={e =>

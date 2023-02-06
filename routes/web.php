@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\Settings\PermissionController;
 use App\Http\Controllers\Settings\RoleController;
-
+use App\Http\Controllers\Settings\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +42,7 @@ Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
     Route::group(['prefix' => 'settings', 'as' => 'settings.', 'middleware' => 'role:super-admin'], function () {
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
+        Route::resource('users', UserController::class);
     });
 });
 

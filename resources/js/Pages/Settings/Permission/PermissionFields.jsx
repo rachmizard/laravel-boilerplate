@@ -30,7 +30,7 @@ export default function PermissionFields({
                                     type="text"
                                     name="name"
                                     placeholder="ex: edit articles, delete articles, etc."
-                                    value={data.name}
+                                    value={data?.name ?? ''}
                                     color={errors.name ? 'failure' : ''}
                                     helperText={errors.name}
                                     onChange={e =>

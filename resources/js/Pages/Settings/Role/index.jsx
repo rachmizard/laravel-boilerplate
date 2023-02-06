@@ -144,11 +144,12 @@ export default function SettingRoleIndexPage(props) {
                         onClose={() => setOpenCreateModal(false)}
                   />
 
-                  <EditRoleModal
-                        show={openEditModal && roleData}
-                        defaultValues={roleData}
-                        onClose={() => setOpenEditModal(false)}
-                  />
+                  {openEditModal && roleData && (
+                        <EditRoleModal
+                              defaultValues={roleData}
+                              onClose={() => setOpenEditModal(false)}
+                        />
+                  )}
 
                   <DeleteRoleModal
                         show={openDeleteModal && roleData}

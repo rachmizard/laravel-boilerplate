@@ -106,10 +106,13 @@ export default function Sidebar() {
                                                       <FlowbiteSidebar.Item
                                                             icon={UsersIcon}
                                                             href="#"
+                                                            active={url.startsWith(
+                                                                  '/settings/users'
+                                                            )}
                                                             onClick={() =>
                                                                   router.visit(
                                                                         window.route(
-                                                                              'settings.permissions.index'
+                                                                              'settings.users.index'
                                                                         ),
                                                                         {
                                                                               preserveState: true,
