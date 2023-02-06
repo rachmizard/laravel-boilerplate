@@ -39,7 +39,7 @@ export default function SettingRoleIndexPage(props) {
                   id: 'permissions',
                   enableSorting: false,
                   cell: info => (
-                        <p className="truncate">
+                        <p className="truncate max-w-md">
                               {info
                                     .getValue()
                                     .map(permission => permission.name)
