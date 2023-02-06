@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Models\Permission;
+
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,15 +19,13 @@ class PermissionController extends Controller
     public function index(Request $request)
     {
 
-        $permissions = \Spatie\Permission\Models\Permission::query();
+        $permissions = Permission::query()
+            ->sortFromArray($request->sorts)
+            ->paginate(5);
 
-        if ($request->has('sorts')) {
-            $sorts = array_merge(...$request->sorts);
-            $permissions->orderBy($sorts['id'], $sorts['desc'] === "true" ? 'DESC' : 'ASC');
-        }
 
         return Inertia::render('Settings/Permission/index', [
-            'permissions' => $permissions->paginate(5)
+            'permissions' => $permissions
         ]);
     }
 
@@ -50,7 +51,7 @@ class PermissionController extends Controller
             'name' => 'required|unique:permissions,name',
         ]);
 
-        \Spatie\Permission\Models\Permission::create(['name' => $request->name]);
+        Permission::create(['name' => $request->name]);
 
         return redirect()->route('settings.permissions.index')->with('success', 'Permission created successfully.');
     }
@@ -90,7 +91,7 @@ class PermissionController extends Controller
             'name' => 'required|unique:permissions,name',
         ]);
 
-        $permission = \Spatie\Permission\Models\Permission::find($id);
+        $permission = Permission::find($id);
         $permission->name = $request->name;
         $permission->save();
 
@@ -105,7 +106,7 @@ class PermissionController extends Controller
      */
     public function destroy($id)
     {
-        $permission = \Spatie\Permission\Models\Permission::find($id);
+        $permission = Permission::find($id);
         $permission->delete();
 
         return redirect()->route('settings.permissions.index')->with('success', 'Permission deleted successfully.');

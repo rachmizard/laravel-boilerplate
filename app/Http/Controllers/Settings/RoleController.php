@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Permission;
+use App\Models\Role;
+
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,23 +18,17 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = \Spatie\Permission\Models\Role::where('name', '!=', 'super-admin')
+        $roles = Role::where('name', '!=', 'super-admin')
             ->with(['permissions' => function ($query) {
                 $query->select('name');
                 $query->orderBy('created_at', 'DESC');
-            }]);
+            }])
+            ->sortFromArray($request->sorts)
+            ->paginate(5);
 
-
-        if ($request->has('sorts')) {
-            $sorts = array_merge(...$request->sorts);
-            $roles = $roles->orderBy($sorts['id'], $sorts['desc'] === "true" ? 'DESC' : 'ASC');
-        }
-
-
-        $roles = $roles->paginate(5);
 
         return Inertia::render('Settings/Role/index', [
-            'permissions' => \Spatie\Permission\Models\Permission::orderBy('created_at', 'DESC')->get()->pluck('name'),
+            'permissions' => Permission::orderBy('created_at', 'DESC')->get()->pluck('name'),
             'roles' => $roles
         ]);
     }
@@ -60,7 +56,7 @@ class RoleController extends Controller
             'permissions' => 'array|exists:permissions,name',
         ]);
 
-        $role = \Spatie\Permission\Models\Role::create(['name' => $request->name]);
+        $role = Role::create(['name' => $request->name]);
 
         if ($request->has('permissions')) {
             $role->syncPermissions($request->permissions);
@@ -105,7 +101,7 @@ class RoleController extends Controller
             'permissions' => 'array|exists:permissions,name'
         ]);
 
-        $role = \Spatie\Permission\Models\Role::find($id);
+        $role = Role::find($id);
         $role->name = $request->name;
         $role->save();
 
@@ -124,7 +120,7 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        $role = \Spatie\Permission\Models\Role::find($id);
+        $role = Role::find($id);
         $role->delete();
 
         return redirect()->route('settings.roles.index')->with('success', 'Role deleted successfully.');
