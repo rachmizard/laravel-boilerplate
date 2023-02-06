@@ -95,8 +95,9 @@ export default function SettingPermissionIndexPage(props) {
                               columns={columns}
                               data={props.permissions?.data ?? []}
                               onSortChange={onSortChange}
-                              headerActions={
-                                    <div className="flex items-center justify-end space-x-4">
+                        >
+                              <Datatable.HeaderAction>
+                                    <div className="flex items-center justify-end">
                                           <Button
                                                 size="sm"
                                                 color="purple"
@@ -109,18 +110,11 @@ export default function SettingPermissionIndexPage(props) {
                                                 <PlusCircleIcon className="ml-1 h-5 w-5" />
                                           </Button>
                                     </div>
-                              }
-                              footerActions={
-                                    <div className="flex justify-end">
-                                          <Datatable.Pagination
-                                                links={
-                                                      props.permissions
-                                                            ?.links ?? []
-                                                }
-                                          />
-                                    </div>
-                              }
-                        />
+                              </Datatable.HeaderAction>
+                              <Datatable.Pagination
+                                    links={props.permissions?.links ?? []}
+                              />
+                        </Datatable>
                   </div>
 
                   <CreatePermissionModal

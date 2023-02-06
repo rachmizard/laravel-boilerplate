@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Children, cloneElement, useState } from 'react';
 import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
 import { Link, usePage } from '@inertiajs/react';
 import {
@@ -10,11 +10,10 @@ import {
 import { Button, Table } from 'flowbite-react';
 
 export default function Datatable({
-      headerActions,
-      footerActions,
       columns = [],
       data = [],
       onSortChange,
+      children,
 }) {
       const { ziggy } = usePage().props;
       const { sorts } = ziggy.queryParams || {};
@@ -40,7 +39,15 @@ export default function Datatable({
 
       return (
             <div className="flex flex-col space-y-4">
-                  {headerActions && headerActions}
+                  {Children.map(children, child => {
+                        if (child.type === Datatable.HeaderAction) {
+                              return cloneElement(child, {
+                                    ...child.props,
+                              });
+                        }
+
+                        return null;
+                  })}
 
                   <div className="flex flex-col overflow-x-auto max-w-full">
                         <Table hoverable={true}>
@@ -115,7 +122,20 @@ export default function Datatable({
                         </Table>
                   </div>
 
-                  {footerActions && footerActions}
+                  {children &&
+                        Children.map(children, child => {
+                              if (child.type === Datatable.Pagination) {
+                                    return (
+                                          <div className="flex justify-end">
+                                                {cloneElement(child, {
+                                                      ...child.props,
+                                                })}
+                                          </div>
+                                    );
+                              }
+
+                              return null;
+                        })}
             </div>
       );
 }
@@ -147,4 +167,8 @@ Datatable.Pagination = function DatatablePagination({ links = [] }) {
                   })}
             </div>
       );
+};
+
+Datatable.HeaderAction = function DatatableHeaderAction({ children }) {
+      return children;
 };
