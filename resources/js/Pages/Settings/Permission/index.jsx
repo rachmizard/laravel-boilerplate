@@ -97,7 +97,13 @@ export default function SettingPermissionIndexPage(props) {
                               onSortChange={onSortChange}
                         >
                               <Datatable.HeaderAction>
-                                    <div className="flex items-center justify-end">
+                                    <div className="flex items-center justify-between">
+                                          <Datatable.Filter
+                                                placeholder="Search name"
+                                                route={window.route(
+                                                      'settings.permissions.index'
+                                                )}
+                                          />
                                           <Button
                                                 size="sm"
                                                 color="purple"

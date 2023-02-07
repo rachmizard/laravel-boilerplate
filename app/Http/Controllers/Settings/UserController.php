@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Models\Role;
+use App\Models\User;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\User\StoreUserRequest;
 use App\Http\Requests\Settings\User\UpdateUserRequest;
@@ -21,13 +23,16 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $users = User::query()
+            ->with(['roles' => function ($query) {
+                $query->select('name');
+            }])
+            ->search($request->search, ['name', 'email'])
+            ->sortFromArray($request->sorts)
+            ->paginate(10);
+
         return Inertia::render('Settings/User/index', [
-            'users' => \App\Models\User::sortFromArray($request->sorts)
-                ->with(['roles' => function ($query) {
-                    $query->select('name');
-                }])
-                ->paginate(10)
-                ->withQueryString(),
+            'users' => $users,
             'roles' => Role::all()->pluck('name'),
         ]);
     }

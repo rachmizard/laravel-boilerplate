@@ -109,7 +109,13 @@ export default function SettingUserIndexPage(props) {
                               onSortChange={onSortChange}
                         >
                               <Datatable.HeaderAction>
-                                    <div className="flex items-center justify-end">
+                                    <div className="flex items-center justify-between">
+                                          <Datatable.Filter
+                                                placeholder="Search name, email"
+                                                route={window.route(
+                                                      'settings.users.index'
+                                                )}
+                                          />
                                           <Button
                                                 size="sm"
                                                 color="purple"

@@ -1,13 +1,19 @@
-import { Children, cloneElement, useState } from 'react';
-import { ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
-import { Link, usePage } from '@inertiajs/react';
+import useDebounce from '@/Hooks/use-debounce';
+import {
+      ArrowDownIcon,
+      ArrowUpIcon,
+      MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
       flexRender,
       getCoreRowModel,
       getSortedRowModel,
       useReactTable,
 } from '@tanstack/react-table';
-import { Button, Table } from 'flowbite-react';
+import { Button, Table, TextInput } from 'flowbite-react';
+import { Children, cloneElement, useState } from 'react';
+import { useUpdateEffect } from 'usehooks-ts';
 
 export default function Datatable({
       columns = [],
@@ -171,4 +177,48 @@ Datatable.Pagination = function DatatablePagination({ links = [] }) {
 
 Datatable.HeaderAction = function DatatableHeaderAction({ children }) {
       return children;
+};
+
+Datatable.Filter = function DatatableFilter({
+      id = 'searchable',
+      placeholder = 'Search',
+      route,
+}) {
+      if (!route) throw new Error('Route is required for Datatable.Filter');
+
+      const {
+            ziggy: { queryParams },
+      } = usePage().props;
+
+      const [search, setSearch] = useState(queryParams?.search ?? '');
+      const debounceSearch = useDebounce(search, 200);
+
+      useUpdateEffect(() => {
+            const params = {
+                  ...queryParams,
+            };
+
+            if (debounceSearch) {
+                  params.search = debounceSearch;
+            } else {
+                  delete params.search;
+            }
+
+            router.get(route, params, {
+                  preserveState: true,
+                  preserveScroll: true,
+            });
+      }, [debounceSearch]);
+
+      return (
+            <div className="flex items-center gap-2">
+                  <TextInput
+                        id={id}
+                        icon={MagnifyingGlassIcon}
+                        value={search}
+                        placeholder={placeholder}
+                        onChange={e => setSearch(e.target.value)}
+                  />
+            </div>
+      );
 };

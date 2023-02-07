@@ -20,6 +20,7 @@ class PermissionController extends Controller
     {
 
         $permissions = Permission::query()
+            ->search($request->search, ['name'])
             ->sortFromArray($request->sorts)
             ->paginate(5);
 

@@ -18,11 +18,12 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
-        $roles = Role::where('name', '!=', 'super-admin')
-            ->with(['permissions' => function ($query) {
-                $query->select('name');
-                $query->orderBy('created_at', 'DESC');
-            }])
+        $roles = Role::with(['permissions' => function ($query) {
+            $query->select('name');
+            $query->orderBy('created_at', 'DESC');
+        }])
+            ->where('name', '!=', 'super-admin')
+            ->search($request->search, ['name'])
             ->sortFromArray($request->sorts)
             ->paginate(5);
 
